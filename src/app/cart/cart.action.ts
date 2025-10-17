@@ -2,12 +2,10 @@
 import { getUserToken } from "_/Utils/Utils"
 import { revalidatePath } from "next/cache"
 
-// 1. تعريف شكل الـ Response لعمليات تحديث السلة (حذف عنصر أو تغيير عدده)
+// تم حذف سطر "data?: any" من هنا لحل المشكلة
 interface CartUpdateResponse {
     status: 'success' | 'fail';
     numOfCartItems: number;
-    // قد يحتوي الـ response على بيانات أخرى
-    data?: any; 
 }
 
 export async function deleteItem(itemId: string): Promise<number | null> {
@@ -36,7 +34,6 @@ export async function deleteItem(itemId: string): Promise<number | null> {
 
 // --------------------------------------------------------------------------
 
-// 2. تعريف شكل الـ Response لعملية حذف كل العناصر
 interface ClearCartResponse {
     message: 'success' | string;
 }
@@ -71,7 +68,6 @@ export async function changeCount(itemId: string, count: number): Promise<number
     const userToken = await getUserToken();
     if (!userToken) return null;
 
-    // لو العدد أقل من 1، الأفضل نحذف العنصر مباشرة
     if (count < 1) {
         return deleteItem(itemId);
     }
@@ -86,7 +82,6 @@ export async function changeCount(itemId: string, count: number): Promise<number
             body: JSON.stringify({ count })
         });
         
-        // 3. بنستخدم نفس الـ Interface بتاع الحذف
         const final: CartUpdateResponse = await res.json();
 
         if (res.ok && final.status === 'success') {
